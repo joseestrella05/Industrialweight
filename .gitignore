@@ -1,0 +1,7 @@
+node_modules/
+scale-frontend/node_modules/
+*.db
+pesajes.db
+scale-backend/pesajes.db
+.DS_Store
+.venv/
