@@ -41,6 +41,18 @@ type TicketResponse struct {
 	Success  bool    `json:"success"`
 }
 
+type TicketRecord struct {
+	ID        int64   `json:"id"`
+	Fecha     string  `json:"fecha"`
+	Placa     string  `json:"placa"`
+	Chofer    string  `json:"chofer"`
+	Producto  string  `json:"producto"`
+	PesoBruto float64 `json:"peso_bruto"`
+	Tara      float64 `json:"tara"`
+	PesoNeto  float64 `json:"peso_neto"`
+	Unidad    string  `json:"unidad"`
+}
+
 var (
 	db          *sql.DB
 	weightRegex = regexp.MustCompile(`(ST|US),(GS|NT),([+-]?\d+\.?\d*)(kg|lb)`)
@@ -201,6 +213,38 @@ func startSerialReader(portName string) {
 	}
 }
 
+func getTicketsHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+
+	rows, err := db.Query(`
+		SELECT id, fecha, placa, chofer, producto, peso_bruto, tara, peso_neto, unidad 
+		FROM tickets 
+		ORDER BY id DESC 
+		LIMIT 10
+	`)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var list []TicketRecord
+	for rows.Next() {
+		var t TicketRecord
+		if err := rows.Scan(&t.ID, &t.Fecha, &t.Placa, &t.Chofer, &t.Producto, &t.PesoBruto, &t.Tara, &t.PesoNeto, &t.Unidad); err == nil {
+			list = append(list, t)
+		}
+	}
+
+	if err := rows.Err(); err != nil {
+		http.Error(w, fmt.Sprintf("Error leyendo filas: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(list)
+}
+
 func main() {
 	initDB()
 
@@ -209,6 +253,7 @@ func main() {
 
 	http.HandleFunc("/ws", wsHandler)
 	http.HandleFunc("/api/ticket", saveTicketHandler)
+	http.HandleFunc("/api/tickets", getTicketsHandler)
 
 	fmt.Println("Servidor Go listo en http://127.0.0.1:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
