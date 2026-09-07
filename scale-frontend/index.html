@@ -1,10 +1,16 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <title>Sistema de Pesaje Industrial</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
       background-color: #0f1115;
       color: #e0e0e0;
@@ -15,6 +21,7 @@
       gap: 16px;
       height: 100vh;
     }
+
     .header {
       display: flex;
       justify-content: space-between;
@@ -22,7 +29,13 @@
       border-bottom: 1px solid #232730;
       padding-bottom: 12px;
     }
-    .header h1 { font-size: 1.1rem; text-transform: uppercase; color: #8a99ad; letter-spacing: 1px; }
+
+    .header h1 {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      color: #8a99ad;
+      letter-spacing: 1px;
+    }
 
     .indicator-box {
       background: #050608;
@@ -31,6 +44,7 @@
       padding: 25px;
       text-align: center;
     }
+
     .weight-value {
       font-family: 'Courier New', Courier, monospace;
       font-size: 4.5rem;
@@ -39,8 +53,13 @@
       color: #00ff66;
       text-shadow: 0 0 15px rgba(0, 255, 102, 0.4);
     }
-    .unit { font-size: 1.8rem; color: #5a6e85; margin-left: 8px; }
-    
+
+    .unit {
+      font-size: 1.8rem;
+      color: #5a6e85;
+      margin-left: 8px;
+    }
+
     .status-badge {
       display: inline-block;
       padding: 4px 12px;
@@ -50,8 +69,18 @@
       text-transform: uppercase;
       margin-top: 10px;
     }
-    .stable { background: rgba(0, 255, 102, 0.15); color: #00ff66; border: 1px solid #00ff66; }
-    .unstable { background: rgba(255, 170, 0, 0.15); color: #ffaa00; border: 1px solid #ffaa00; }
+
+    .stable {
+      background: rgba(0, 255, 102, 0.15);
+      color: #00ff66;
+      border: 1px solid #00ff66;
+    }
+
+    .unstable {
+      background: rgba(255, 170, 0, 0.15);
+      color: #ffaa00;
+      border: 1px solid #ffaa00;
+    }
 
     /* Formulario de Registro */
     .form-grid {
@@ -63,8 +92,19 @@
       border-radius: 8px;
       border: 1px solid #232730;
     }
-    .field { display: flex; flex-direction: column; gap: 4px; }
-    label { font-size: 0.8rem; color: #8a99ad; text-transform: uppercase; }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    label {
+      font-size: 0.8rem;
+      color: #8a99ad;
+      text-transform: uppercase;
+    }
+
     input {
       background: #0d0f12;
       border: 1px solid #2a313d;
@@ -73,7 +113,11 @@
       color: #fff;
       font-size: 0.95rem;
     }
-    input:focus { border-color: #0066ff; outline: none; }
+
+    input:focus {
+      border-color: #0066ff;
+      outline: none;
+    }
 
     .btn-primary {
       padding: 16px;
@@ -85,9 +129,15 @@
       font-weight: bold;
       cursor: pointer;
     }
-    .btn-primary:disabled { background: #1c2536; color: #52617a; cursor: not-allowed; }
+
+    .btn-primary:disabled {
+      background: #1c2536;
+      color: #52617a;
+      cursor: not-allowed;
+    }
   </style>
 </head>
+
 <body>
 
   <div class="header">
@@ -125,8 +175,10 @@
   <button id="btn-save" class="btn-primary" disabled onclick="guardarPesaje()">Registrar Pesaje</button>
 
   <div style="margin-top: 15px;">
-    <h3 style="font-size: 0.9rem; color: #8a99ad; margin-bottom: 8px; text-transform: uppercase;">Últimos Pesajes Registrados</h3>
-    <table style="width: 100%; border-collapse: collapse; background: #15181e; border-radius: 8px; overflow: hidden; font-size: 0.85rem;">
+    <h3 style="font-size: 0.9rem; color: #8a99ad; margin-bottom: 8px; text-transform: uppercase;">Últimos Pesajes
+      Registrados</h3>
+    <table
+      style="width: 100%; border-collapse: collapse; background: #15181e; border-radius: 8px; overflow: hidden; font-size: 0.85rem;">
       <thead>
         <tr style="background: #1f242d; color: #8a99ad; text-align: left;">
           <th style="padding: 8px;"># Boleta</th>
@@ -209,31 +261,43 @@
 
         const result = await response.json();
         if (result.success) {
+          // 1. Refrescar la tabla inmediatamente
+          await cargarHistorial();
+
+          // 2. Limpiar campos del formulario
+          document.getElementById('placa').value = '';
+          document.getElementById('chofer').value = '';
+          document.getElementById('producto').value = '';
+          document.getElementById('tara').value = '0.00';
+
           alert(`Boleta #${result.id} registrada con éxito.\nPeso Neto: ${result.peso_neto.toFixed(2)} ${currentUnit}`);
         }
       } catch (err) {
-        alert('Error registrando boleta en backend: ' + err.message);
+        alert('Error registrando boleta: ' + err.message);
       }
     }
 
     async function cargarHistorial() {
       try {
         const res = await fetch('http://127.0.0.1:8080/api/tickets');
-        const tickets = await res.json() || [];
+        const tickets = await res.json();
+
+        if (!tickets || !Array.isArray(tickets)) return;
+
         const tbody = document.getElementById('tickets-table-body');
         tbody.innerHTML = tickets.map(t => `
-          <tr style="border-bottom: 1px solid #232730;">
-            <td style="padding: 8px; font-weight: bold; color: #00ff66;">#${String(t.id).padStart(5, '0')}</td>
-            <td style="padding: 8px; color: #a0a0a0;">${t.fecha}</td>
-            <td style="padding: 8px; font-weight: bold;">${t.placa}</td>
-            <td style="padding: 8px;">${t.producto}</td>
-            <td style="padding: 8px;">${t.peso_bruto.toFixed(2)} ${t.unidad}</td>
-            <td style="padding: 8px;">${t.tara.toFixed(2)} ${t.unidad}</td>
-            <td style="padding: 8px; font-weight: bold; color: #fff;">${t.peso_neto.toFixed(2)} ${t.unidad}</td>
-          </tr>
-        `).join('');
+      <tr style="border-bottom: 1px solid #232730;">
+        <td style="padding: 10px; font-weight: bold; color: #00ff66;">#${String(t.id).padStart(5, '0')}</td>
+        <td style="padding: 10px; color: #8a99ad;">${t.fecha}</td>
+        <td style="padding: 10px; font-weight: bold;">${t.placa}</td>
+        <td style="padding: 10px;">${t.producto}</td>
+        <td style="padding: 10px;">${t.peso_bruto.toFixed(2)} ${t.unidad}</td>
+        <td style="padding: 10px;">${t.tara.toFixed(2)} ${t.unidad}</td>
+        <td style="padding: 10px; font-weight: bold; color: #fff;">${t.peso_neto.toFixed(2)} ${t.unidad}</td>
+      </tr>
+    `).join('');
       } catch (e) {
-      console.error('Error cargando historial', e);
+        console.error('Error cargando historial:', e);
       }
     }
     cargarHistorial();
@@ -241,4 +305,5 @@
     connect();
   </script>
 </body>
+
 </html>
