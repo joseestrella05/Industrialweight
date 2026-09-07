@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    @page { margin: 0; size: 80mm auto; }
+    body {
+      font-family: 'Courier New', monospace;
+      width: 72mm;
+      margin: 0 auto;
+      padding: 10px 0;
+      color: #000;
+      font-size: 12px;
+    }
+    .center { text-align: center; }
+    .bold { font-weight: bold; }
+    .line { border-bottom: 1px dashed #000; margin: 8px 0; }
+    .row { display: flex; justify-content: space-between; margin: 3px 0; }
+    .total-box { font-size: 15px; margin: 6px 0; font-weight: 900; }
+    .signatures { margin-top: 35px; display: flex; justify-content: space-between; font-size: 10px; }
+  </style>
+</head>
+<body>
+  <div class="center bold" style="font-size: 14px;">COMPROBANTE DE PESAJE</div>
+  <div class="center" style="font-size: 11px;">TERMINAL BASCULA INDUSTRIAL</div>
+  <div class="line"></div>
+
+  <div class="row"><span>BOLETA:</span><span id="t-id" class="bold"></span></div>
+  <div class="row"><span>FECHA:</span><span id="t-fecha"></span></div>
+  <div class="row"><span>PLACA:</span><span id="t-placa" class="bold"></span></div>
+  <div class="row"><span>CHOFER:</span><span id="t-chofer"></span></div>
+  <div class="row"><span>PRODUCTO:</span><span id="t-producto"></span></div>
+  <div class="line"></div>
+
+  <div class="row"><span>P. BRUTO:</span><span id="t-bruto"></span></div>
+  <div class="row"><span>TARA:</span><span id="t-tara"></span></div>
+  <div class="line"></div>
+
+  <div class="row total-box">
+    <span>PESO NETO:</span>
+    <span id="t-neto"></span>
+  </div>
+  <div class="line"></div>
+
+  <div class="signatures">
+    <div>__________________<br>Operador Báscula</div>
+    <div>__________________<br>Firma Conductor</div>
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+    ipcRenderer.on('print-data', (event, data) => {
+      document.getElementById('t-id').textContent = '#' + String(data.id).padStart(5, '0');
+      document.getElementById('t-fecha').textContent = data.fecha;
+      document.getElementById('t-placa').textContent = data.placa;
+      document.getElementById('t-chofer').textContent = data.chofer;
+      document.getElementById('t-producto').textContent = data.producto;
+      document.getElementById('t-bruto').textContent = data.peso_bruto.toFixed(2) + ' ' + data.unidad;
+      document.getElementById('t-tara').textContent = data.tara.toFixed(2) + ' ' + data.unidad;
+      document.getElementById('t-neto').textContent = data.peso_neto.toFixed(2) + ' ' + data.unidad;
+
+      window.print();
+    });
+  </script>
+</body>
+</html>
