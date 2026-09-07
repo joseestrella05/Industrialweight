@@ -1,28 +1,38 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 
+let mainWindow;
+
 function createWindow() {
-  const win = new BrowserWindow({
-    width: 900,
-    height: 650,
-    minWidth: 700,
-    minHeight: 500,
-    backgroundColor: '#121212',
+  mainWindow = new BrowserWindow({
+    width: 950,
+    height: 700,
+    backgroundColor: '#0f1115',
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
     },
   });
 
-  // Ruta absoluta garantizada
-  win.loadFile(path.join(__dirname, 'index.html'));
-
-  // Abre la consola para ver errores en pantalla
-  win.webContents.openDevTools();
+  mainWindow.loadFile(path.join(__dirname, 'index.html'));
 }
 
-app.whenReady().then(createWindow);
+ipcMain.on('imprimir-ticket', (event, ticketData) => {
+  let printWin = new BrowserWindow({
+    width: 350,
+    height: 500,
+    show: true, // Ponlo en false cuando quieras impresión silenciosa directa
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+    },
+  });
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
+  printWin.loadFile(path.join(__dirname, 'ticket.html'));
+  printWin.webContents.on('did-finish-load', () => {
+    printWin.webContents.send('print-data', ticketData);
+  });
 });
+
+app.whenReady().then(createWindow);
+app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
