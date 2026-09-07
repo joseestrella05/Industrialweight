@@ -197,6 +197,7 @@
   </div>
 
   <script>
+    const { ipcRenderer } = require('electron');
     let currentWeight = 0;
     let currentUnit = 'kg';
     let isStable = false;
@@ -272,6 +273,17 @@
 
           alert(`Boleta #${result.id} registrada con éxito.\nPeso Neto: ${result.peso_neto.toFixed(2)} ${currentUnit}`);
         }
+        ipcRenderer.send('imprimir-ticket', {
+          id: result.id,
+          fecha: result.fecha,
+          placa: payload.placa,
+          chofer: payload.chofer,
+          producto: payload.producto,
+          peso_bruto: payload.peso_bruto,
+          tara: payload.tara,
+          peso_neto: result.peso_neto,
+          unidad: payload.unidad
+        });
       } catch (err) {
         alert('Error registrando boleta: ' + err.message);
       }
