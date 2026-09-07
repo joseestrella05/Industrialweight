@@ -27,10 +27,10 @@ function startBackend() {
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 1050,
-    height: 800,
-    minWidth: 850,
-    minHeight: 650,
+    width: 1100,
+    height: 850,
+    minWidth: 900,
+    minHeight: 700,
     backgroundColor: '#0f1115',
     webPreferences: {
       nodeIntegration: true,

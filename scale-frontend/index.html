@@ -15,6 +15,8 @@
       gap: 16px;
       min-height: 100vh;
     }
+    
+    /* Header */
     .header {
       display: flex;
       justify-content: space-between;
@@ -23,7 +25,41 @@
       padding-bottom: 12px;
     }
     .header h1 { font-size: 1.1rem; text-transform: uppercase; color: #8a99ad; letter-spacing: 1px; }
-
+    .header-center { position: relative; display: flex; align-items: center; gap: 8px; }
+    
+    /* Port dropdown */
+    .port-btn {
+      background: #1f242d;
+      border: 1px solid #232730;
+      color: #8a99ad;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    .port-btn:hover { background: #232730; color: #e0e0e0; }
+    .port-badge { font-size: 0.85rem; color: #8a99ad; background: #15181e; padding: 4px 8px; border-radius: 4px; border: 1px solid #232730;}
+    .port-badge.unselected { color: #ffaa00; border-color: #ffaa00; }
+    
+    .port-dropdown {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      margin-top: 8px;
+      background: #15181e;
+      border: 1px solid #232730;
+      border-radius: 8px;
+      padding: 12px;
+      width: 250px;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+    .port-dropdown.show { display: block; }
+    .port-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; max-height: 200px; overflow-y: auto; }
+    .port-item { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+    
+    /* Indicator */
     .indicator-box {
       background: #050608;
       border: 2px solid #1f242d;
@@ -53,6 +89,39 @@
     .stable { background: rgba(0, 255, 102, 0.15); color: #00ff66; border: 1px solid #00ff66; }
     .unstable { background: rgba(255, 170, 0, 0.15); color: #ffaa00; border: 1px solid #ffaa00; }
 
+    /* Tabs */
+    .tab-bar {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 12px;
+      border-radius: 20px;
+      border: none;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      background: #1f242d;
+      color: #8a99ad;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      background: #0066ff;
+      color: #fff;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Forms & Layout */
     .form-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -74,6 +143,40 @@
     }
     input:focus { border-color: #0066ff; outline: none; }
 
+    .info-card {
+      background: rgba(0, 102, 255, 0.1);
+      border: 1px solid #0066ff;
+      color: #fff;
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: bold;
+    }
+    
+    .detail-card {
+      background: #15181e;
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid #232730;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .net-weight-display {
+      grid-column: span 2;
+      background: #0d0f12;
+      padding: 16px;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 1.2rem;
+    }
+    .net-weight-display .val {
+      font-size: 2rem;
+      color: #00ff66;
+      font-weight: bold;
+      font-family: monospace;
+    }
+
     .btn-primary {
       padding: 16px;
       background: #0066ff;
@@ -86,17 +189,30 @@
     }
     .btn-primary:disabled { background: #1c2536; color: #52617a; cursor: not-allowed; }
 
-    .history-container {
+    /* Tables */
+    .table-container {
       background: #15181e;
       border: 1px solid #232730;
       border-radius: 8px;
       padding: 16px;
-      flex-grow: 1;
+      overflow-x: auto;
     }
     table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
     th { background: #1f242d; color: #8a99ad; text-align: left; padding: 10px; }
     td { padding: 10px; border-bottom: 1px solid #232730; }
-    .btn-reprint {
+    tr.selectable:hover { background: #1f242d; cursor: pointer; }
+    tr.selected { background: rgba(0, 102, 255, 0.2); border-left: 3px solid #0066ff; }
+    
+    .badge {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: bold;
+    }
+    .badge.pendiente { background: rgba(255, 170, 0, 0.2); color: #ffaa00; }
+    .badge.completado { background: rgba(0, 255, 102, 0.2); color: #00ff66; }
+
+    .btn-sm {
       padding: 4px 8px;
       font-size: 0.75rem;
       background: #232730;
@@ -105,16 +221,51 @@
       border-radius: 4px;
       cursor: pointer;
     }
-    .btn-reprint:hover { background: #2e3440; color: #fff; }
+    .btn-sm:hover { background: #2e3440; color: #fff; }
+    
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #00ff66;
+      color: #000;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: bold;
+      display: none;
+      box-shadow: 0 4px 12px rgba(0,255,102,0.3);
+      z-index: 1000;
+    }
   </style>
 </head>
 <body>
 
+  <!-- Header -->
   <div class="header">
     <h1>Terminal de Pesaje // XK3190-A12E</h1>
+    
+    <div class="header-center">
+      <button class="port-btn" onclick="togglePortDropdown()">⚙</button>
+      <span id="active-port-badge" class="port-badge unselected">Sin puerto</span>
+      
+      <div id="port-dropdown" class="port-dropdown">
+        <h4 style="color: #8a99ad; margin-bottom: 8px; font-size: 0.85rem;">Seleccionar Puerto</h4>
+        <div class="port-list" id="port-list">
+          <span style="color: #8a99ad; font-size: 0.8rem;">Cargando...</span>
+        </div>
+        <div style="border-top: 1px solid #232730; margin: 10px 0; padding-top: 10px;">
+          <label style="font-size: 0.75rem; color: #8a99ad; text-transform: uppercase;">O escribir puerto manual (simulador / custom):</label>
+          <input type="text" id="manual-port-input" placeholder="/dev/ttys00X o COM1" style="width: 100%; margin-top: 4px; background: #0d0f12; border: 1px solid #2a313d; border-radius: 6px; padding: 8px; color: #fff; font-size: 0.85rem;">
+        </div>
+        <div id="port-status-msg" style="font-size: 0.8rem; margin-bottom: 8px; display: none;"></div>
+        <button class="btn-primary" style="width: 100%; padding: 8px; font-size: 0.9rem;" onclick="aplicarPuerto()">Aplicar</button>
+      </div>
+    </div>
+    
     <span id="conn-status" style="font-size: 0.85rem; color: #ff4444;">● Desconectado</span>
   </div>
 
+  <!-- Indicator -->
   <div class="indicator-box">
     <div>
       <span id="display-weight" class="weight-value">0.00</span>
@@ -123,66 +274,141 @@
     <div id="display-status" class="status-badge unstable">Inestable</div>
   </div>
 
-  <div class="form-grid">
-    <div class="field">
-      <label>Placa / Ficha del Camión</label>
-      <input type="text" id="placa" placeholder="Ej: L245012">
+  <!-- Tabs -->
+  <div class="tab-bar">
+    <button id="tab-entrada" class="tab-btn active" onclick="switchTab('entrada')">⬇ ENTRADA</button>
+    <button id="tab-salida" class="tab-btn" onclick="switchTab('salida')">⬆ SALIDA</button>
+  </div>
+
+  <!-- ENTRADA CONTENT -->
+  <div id="content-entrada" class="tab-content active">
+    <div class="form-grid">
+      <div class="field">
+        <label>Placa / Ficha del Camión</label>
+        <input type="text" id="in-placa" placeholder="Ej: L245012">
+      </div>
+      <div class="field">
+        <label>Chofer</label>
+        <input type="text" id="in-chofer" placeholder="Nombre completo">
+      </div>
+      <div class="field">
+        <label>Producto</label>
+        <input type="text" id="in-producto" placeholder="Ej: Maíz / Cacao / Árido">
+      </div>
     </div>
-    <div class="field">
-      <label>Chofer</label>
-      <input type="text" id="chofer" placeholder="Nombre completo">
+    
+    <div class="info-card" id="info-peso-capturado">
+      Peso capturado de báscula: 0.00 kg
     </div>
-    <div class="field">
-      <label>Producto</label>
-      <input type="text" id="producto" placeholder="Ej: Maíz / Cacao / Árido">
+    
+    <button id="btn-registrar-entrada" class="btn-primary" disabled onclick="registrarEntrada()">⬇ Registrar Entrada</button>
+  </div>
+
+  <!-- SALIDA CONTENT -->
+  <div id="content-salida" class="tab-content">
+    <div class="table-container">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 12px; align-items: center;">
+        <h3 style="font-size: 0.9rem; color: #8a99ad; text-transform: uppercase;">Camiones Pendientes</h3>
+        <button class="btn-sm" onclick="cargarPendientes()">🔄</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th># Boleta</th>
+            <th>Placa</th>
+            <th>Chofer</th>
+            <th>Producto</th>
+            <th>Peso Entrada</th>
+            <th>Fecha Entrada</th>
+          </tr>
+        </thead>
+        <tbody id="pendientes-table-body">
+          <tr><td colspan="6" style="text-align:center; color:#8a99ad;">Sin datos</td></tr>
+        </tbody>
+      </table>
     </div>
-    <div class="field">
-      <label>Tara (kg)</label>
-      <input type="number" id="tara" value="0.00" step="0.01">
+    
+    <div id="salida-detail" class="detail-card" style="display: none;">
+      <div>
+        <p style="color: #8a99ad; font-size: 0.8rem; text-transform: uppercase;">Detalle Vehículo</p>
+        <p><strong id="det-placa">--</strong> | <span id="det-chofer">--</span></p>
+        <p style="color: #8a99ad; font-size: 0.9rem;"><span id="det-producto">--</span></p>
+      </div>
+      <div style="text-align: right;">
+        <p style="color: #8a99ad; font-size: 0.8rem; text-transform: uppercase;">Peso de Entrada</p>
+        <p style="font-weight: bold; font-size: 1.1rem;" id="det-peso-entrada">0.00 kg</p>
+      </div>
+      
+      <div class="net-weight-display">
+        <p style="color: #8a99ad; font-size: 0.8rem; text-transform: uppercase;">Peso Neto Preliminar</p>
+        <div class="val" id="det-peso-neto">0.00</div>
+      </div>
+      
+      <button id="btn-cerrar-pesaje" class="btn-primary" style="grid-column: span 2;" disabled onclick="cerrarPesaje()">⬆ Cerrar Pesaje y Emitir Boleta</button>
     </div>
   </div>
 
-  <button id="btn-save" class="btn-primary" disabled onclick="guardarPesaje()">Registrar Pesaje</button>
-
-  <div class="history-container">
+  <!-- History -->
+  <div class="table-container" style="flex-grow: 1;">
     <h3 style="font-size: 0.9rem; color: #8a99ad; margin-bottom: 12px; text-transform: uppercase;">Últimos Pesajes Registrados</h3>
     <table>
       <thead>
         <tr>
           <th># Boleta</th>
-          <th>Fecha / Hora</th>
+          <th>Estado</th>
           <th>Placa</th>
           <th>Producto</th>
-          <th>Bruto</th>
-          <th>Tara</th>
-          <th>Neto</th>
+          <th>P. Entrada</th>
+          <th>P. Salida</th>
+          <th>P. Neto</th>
           <th style="text-align: center;">Acción</th>
         </tr>
       </thead>
-      <tbody id="tickets-table-body"></tbody>
+      <tbody id="history-table-body"></tbody>
     </table>
   </div>
+  
+  <div id="toast" class="toast">Operación exitosa</div>
 
   <script>
     const { ipcRenderer } = require('electron');
 
+    const API_URL = 'http://127.0.0.1:8080';
     let currentWeight = 0;
     let currentUnit = 'kg';
     let isStable = false;
-    let cacheTickets = [];
+    
+    let cacheHistory = [];
+    let cachePending = [];
+    let selectedPendingTicket = null;
+    let selectedPort = null;
 
+    // Elements
     const weightEl = document.getElementById('display-weight');
     const unitEl = document.getElementById('display-unit');
     const statusEl = document.getElementById('display-status');
     const connEl = document.getElementById('conn-status');
-    const saveBtn = document.getElementById('btn-save');
+    
+    const btnEntrada = document.getElementById('btn-registrar-entrada');
+    const btnSalida = document.getElementById('btn-cerrar-pesaje');
+    const infoPesoCap = document.getElementById('info-peso-capturado');
+    const detPesoNeto = document.getElementById('det-peso-neto');
 
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 3000);
+    }
+
+    // WebSocket connection
     function connect() {
       const socket = new WebSocket('ws://127.0.0.1:8080/ws');
 
       socket.onopen = () => {
         connEl.textContent = '● En línea';
         connEl.style.color = '#00ff66';
+        cargarPuertos();
       };
 
       socket.onmessage = (event) => {
@@ -197,11 +423,21 @@
         if (isStable) {
           statusEl.textContent = 'Estable';
           statusEl.className = 'status-badge stable';
-          saveBtn.disabled = false;
+          btnEntrada.disabled = false;
+          if (selectedPendingTicket) btnSalida.disabled = false;
         } else {
           statusEl.textContent = 'En Movimiento';
           statusEl.className = 'status-badge unstable';
-          saveBtn.disabled = true;
+          btnEntrada.disabled = true;
+          btnSalida.disabled = true;
+        }
+        
+        infoPesoCap.textContent = `Peso capturado de báscula: ${currentWeight.toFixed(2)} ${currentUnit}`;
+        
+        // Update preliminary net weight if a ticket is selected
+        if (selectedPendingTicket) {
+          const neto = Math.abs(selectedPendingTicket.peso_entrada - currentWeight);
+          detPesoNeto.textContent = `${neto.toFixed(2)} ${currentUnit}`;
         }
       };
 
@@ -212,87 +448,303 @@
       };
     }
 
-    async function guardarPesaje() {
+    // Tab Switching
+    function switchTab(tabName) {
+      document.getElementById('tab-entrada').className = 'tab-btn' + (tabName === 'entrada' ? ' active' : '');
+      document.getElementById('tab-salida').className = 'tab-btn' + (tabName === 'salida' ? ' active' : '');
+      
+      document.getElementById('content-entrada').className = 'tab-content' + (tabName === 'entrada' ? ' active' : '');
+      document.getElementById('content-salida').className = 'tab-content' + (tabName === 'salida' ? ' active' : '');
+      
+      if (tabName === 'salida') cargarPendientes();
+    }
+
+    // Port Management
+    function togglePortDropdown() {
+      document.getElementById('port-dropdown').classList.toggle('show');
+      if(document.getElementById('port-dropdown').classList.contains('show')){
+        cargarPuertos();
+      }
+    }
+    
+    // Close dropdown on outside click
+    document.addEventListener('click', function(event) {
+      const isClickInside = document.querySelector('.header-center').contains(event.target);
+      if (!isClickInside) {
+        document.getElementById('port-dropdown').classList.remove('show');
+      }
+    });
+
+    async function cargarPuertos() {
+      try {
+        const res = await fetch(`${API_URL}/api/ports`);
+        const data = await res.json();
+        const listEl = document.getElementById('port-list');
+        const active = data.active_port;
+        
+        updatePortBadge(active);
+
+        const ports = data.ports || [];
+        listEl.innerHTML = ports.length === 0 ? '<span style="color:#8a99ad;font-size:0.8rem;">No se detectaron puertos físicos.<br>Usa el campo manual para simuladores.</span>' : '';
+        
+        ports.forEach(port => {
+          const div = document.createElement('div');
+          div.className = 'port-item';
+          const radio = document.createElement('input');
+          radio.type = 'radio';
+          radio.name = 'port-selection';
+          radio.value = port;
+          if (port === active) radio.checked = true;
+          
+          radio.onchange = () => { selectedPort = port; };
+          if (port === active) selectedPort = port;
+          
+          const label = document.createElement('label');
+          label.textContent = port;
+          
+          div.appendChild(radio);
+          div.appendChild(label);
+          listEl.appendChild(div);
+        });
+
+        // Pre-fill manual input with saved port if not in the detected list
+        const savedPort = localStorage.getItem('pesaje_active_port');
+        if (savedPort && !ports.includes(savedPort)) {
+          document.getElementById('manual-port-input').placeholder = savedPort + ' (guardado)';
+        }
+      } catch (err) {
+        console.error('Error cargando puertos:', err);
+      }
+    }
+
+    async function aplicarPuerto() {
+      const manualInput = document.getElementById('manual-port-input').value.trim();
+      const portToApply = manualInput || selectedPort;
+      const statusMsg = document.getElementById('port-status-msg');
+      
+      if (!portToApply) {
+        statusMsg.textContent = 'Selecciona un puerto o escribe uno manualmente.';
+        statusMsg.style.color = '#ffaa00';
+        statusMsg.style.display = 'block';
+        return;
+      }
+      
+      statusMsg.style.display = 'none';
+      
+      try {
+        const res = await fetch(`${API_URL}/api/config/port`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ port: portToApply })
+        });
+        const result = await res.json();
+        if (result.success) {
+          localStorage.setItem('pesaje_active_port', portToApply);
+          document.getElementById('manual-port-input').value = '';
+          showToast('Puerto configurado: ' + portToApply);
+          document.getElementById('port-dropdown').classList.remove('show');
+          updatePortBadge(portToApply);
+          cargarPuertos();
+        } else {
+          statusMsg.textContent = '❌ ' + (result.error || 'Error desconocido al configurar puerto.');
+          statusMsg.style.color = '#ff4444';
+          statusMsg.style.display = 'block';
+        }
+      } catch (err) {
+        statusMsg.textContent = '❌ Error de conexión: ' + err.message;
+        statusMsg.style.color = '#ff4444';
+        statusMsg.style.display = 'block';
+      }
+    }
+
+    function updatePortBadge(portName) {
+      const badge = document.getElementById('active-port-badge');
+      if (portName) {
+        badge.textContent = portName;
+        badge.className = 'port-badge';
+        badge.style.color = '#00ff66';
+        badge.style.borderColor = '#00ff66';
+      } else {
+        badge.textContent = 'Sin puerto';
+        badge.className = 'port-badge unselected';
+        badge.style.color = '';
+        badge.style.borderColor = '';
+      }
+    }
+
+    // API Calls
+    async function registrarEntrada() {
       const payload = {
-        placa: (document.getElementById('placa').value || "S/P").toUpperCase(),
-        chofer: document.getElementById('chofer').value || "Genérico",
-        producto: document.getElementById('producto').value || "Varios",
-        peso_bruto: currentWeight,
-        tara: parseFloat(document.getElementById('tara').value) || 0,
+        placa: document.getElementById('in-placa').value || "S/P",
+        chofer: document.getElementById('in-chofer').value || "Genérico",
+        producto: document.getElementById('in-producto').value || "Varios",
+        peso_entrada: currentWeight,
         unidad: currentUnit
       };
 
       try {
-        const response = await fetch('http://127.0.0.1:8080/api/ticket', {
+        const res = await fetch(`${API_URL}/api/ticket/first`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-
-        const result = await response.json();
+        const result = await res.json();
         if (result.success) {
-          const printData = {
-            id: result.id,
-            fecha: result.fecha,
-            placa: payload.placa,
-            chofer: payload.chofer,
-            producto: payload.producto,
-            peso_bruto: payload.peso_bruto,
-            tara: payload.tara,
-            peso_neto: result.peso_neto,
-            unidad: payload.unidad
-          };
-
-          ipcRenderer.send('imprimir-ticket', printData);
-
-          document.getElementById('placa').value = '';
-          document.getElementById('chofer').value = '';
-          document.getElementById('producto').value = '';
-          document.getElementById('tara').value = '0.00';
-
-          await cargarHistorial();
+          showToast('Entrada registrada correctamente');
+          document.getElementById('in-placa').value = '';
+          document.getElementById('in-chofer').value = '';
+          document.getElementById('in-producto').value = '';
+          cargarHistorial();
+        } else {
+          alert('Error: ' + result.error);
         }
       } catch (err) {
-        alert('Error registrando boleta: ' + err.message);
+        alert('Error registrando entrada: ' + err.message);
+      }
+    }
+
+    async function cargarPendientes() {
+      try {
+        const res = await fetch(`${API_URL}/api/tickets/pending`);
+        cachePending = await res.json() || [];
+        
+        const tbody = document.getElementById('pendientes-table-body');
+        selectedPendingTicket = null;
+        document.getElementById('salida-detail').style.display = 'none';
+        btnSalida.disabled = true;
+
+        if (cachePending.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#8a99ad;">No hay camiones pendientes</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = cachePending.map((t, i) => `
+          <tr class="selectable" id="pend-row-${t.id}" onclick="seleccionarPendiente(${i}, ${t.id})">
+            <td style="font-weight: bold; color: #ffaa00;">#${String(t.id).padStart(5, '0')}</td>
+            <td style="font-weight: bold;">${t.placa}</td>
+            <td>${t.chofer}</td>
+            <td>${t.producto}</td>
+            <td>${Number(t.peso_entrada).toFixed(2)} ${t.unidad}</td>
+            <td style="color: #8a99ad;">${t.fecha_entrada}</td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        console.error('Error cargando pendientes:', e);
+      }
+    }
+
+    function seleccionarPendiente(index, id) {
+      document.querySelectorAll('#pendientes-table-body tr').forEach(r => r.classList.remove('selected'));
+      document.getElementById(`pend-row-${id}`).classList.add('selected');
+      
+      const t = cachePending[index];
+      selectedPendingTicket = t;
+      
+      document.getElementById('det-placa').textContent = t.placa;
+      document.getElementById('det-chofer').textContent = t.chofer;
+      document.getElementById('det-producto').textContent = t.producto;
+      document.getElementById('det-peso-entrada').textContent = `${Number(t.peso_entrada).toFixed(2)} ${t.unidad}`;
+      
+      document.getElementById('salida-detail').style.display = 'grid';
+      if (isStable) btnSalida.disabled = false;
+    }
+
+    async function cerrarPesaje() {
+      if (!selectedPendingTicket) return;
+      
+      const payload = {
+        ticket_id: selectedPendingTicket.id,
+        peso_salida: currentWeight
+      };
+
+      try {
+        const res = await fetch(`${API_URL}/api/ticket/second`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const completedTicketData = await res.json();
+        
+        if (completedTicketData && completedTicketData.id) {
+          showToast('Pesaje cerrado exitosamente');
+          ipcRenderer.send('imprimir-ticket', completedTicketData);
+          cargarPendientes();
+          cargarHistorial();
+        } else {
+          alert('Error al cerrar pesaje');
+        }
+      } catch (err) {
+        alert('Error cerrando pesaje: ' + err.message);
       }
     }
 
     async function cargarHistorial() {
       try {
-        const res = await fetch('http://127.0.0.1:8080/api/tickets');
-        cacheTickets = await res.json() || [];
+        const res = await fetch(`${API_URL}/api/tickets/history`);
+        cacheHistory = await res.json() || [];
 
-        const tbody = document.getElementById('tickets-table-body');
+        const tbody = document.getElementById('history-table-body');
         if (!tbody) return;
 
-        tbody.innerHTML = cacheTickets.map((t, index) => `
+        tbody.innerHTML = cacheHistory.map((t, index) => {
+          const isComp = t.estado === 'COMPLETADO';
+          const pSalida = isComp ? `${Number(t.peso_salida).toFixed(2)} ${t.unidad}` : '—';
+          const pNeto = isComp ? `${Number(t.peso_neto).toFixed(2)} ${t.unidad}` : '—';
+          const badgeClass = isComp ? 'badge completado' : 'badge pendiente';
+          const btn = isComp ? `<button class="btn-sm" onclick="reimprimir(${index})">Reimprimir</button>` : '';
+
+          return `
           <tr>
-            <td style="font-weight: bold; color: #00ff66;">#${String(t.id).padStart(5, '0')}</td>
-            <td style="color: #8a99ad;">${t.fecha}</td>
+            <td style="font-weight: bold; color: #fff;">#${String(t.id).padStart(5, '0')}</td>
+            <td><span class="${badgeClass}">${t.estado}</span></td>
             <td style="font-weight: bold;">${t.placa}</td>
             <td>${t.producto}</td>
-            <td>${t.peso_bruto.toFixed(2)} ${t.unidad}</td>
-            <td>${t.tara.toFixed(2)} ${t.unidad}</td>
-            <td style="font-weight: bold; color: #fff;">${t.peso_neto.toFixed(2)} ${t.unidad}</td>
-            <td style="text-align: center;">
-              <button class="btn-reprint" onclick="reimprimir(${index})">Reimprimir</button>
-            </td>
+            <td>${Number(t.peso_entrada).toFixed(2)} ${t.unidad}</td>
+            <td>${pSalida}</td>
+            <td style="font-weight: bold; color: #00ff66;">${pNeto}</td>
+            <td style="text-align: center;">${btn}</td>
           </tr>
-        `).join('');
+        `}).join('');
       } catch (e) {
         console.error('Error al obtener historial:', e);
       }
     }
 
     function reimprimir(index) {
-      const ticket = cacheTickets[index];
+      const ticket = cacheHistory[index];
       if (ticket) {
         ipcRenderer.send('imprimir-ticket', ticket);
       }
     }
 
+    // Auto-restore saved port from localStorage
+    async function restaurarPuertoGuardado() {
+      const savedPort = localStorage.getItem('pesaje_active_port');
+      if (!savedPort) return;
+      try {
+        const res = await fetch(`${API_URL}/api/config/port`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ port: savedPort })
+        });
+        const result = await res.json();
+        if (result.success) {
+          updatePortBadge(savedPort);
+          console.log('Puerto restaurado desde localStorage:', savedPort);
+        } else {
+          console.warn('No se pudo restaurar puerto guardado:', result.error);
+          updatePortBadge('');
+        }
+      } catch (err) {
+        console.warn('Error restaurando puerto:', err.message);
+      }
+    }
+
+    // Init
     connect();
     cargarHistorial();
+    // Restore saved port after a brief delay to let backend start
+    setTimeout(restaurarPuertoGuardado, 1500);
   </script>
 </body>
 </html>

@@ -34,6 +34,10 @@
       font-size: 16px; 
       font-weight: 900; 
       margin: 6px 0; 
+      text-align: center;
+      background-color: #000;
+      color: #fff;
+      padding: 4px 0;
     }
     .signatures { 
       margin-top: 35px; 
@@ -56,30 +60,35 @@
   <div class="divider"></div>
 
   <div class="row"><span>BOLETA:</span><span id="t-id" class="bold">#00000</span></div>
-  <div class="row"><span>FECHA:</span><span id="t-fecha">--</span></div>
+  <div class="row"><span>ESTADO:</span><span id="t-estado">--</span></div>
   <div class="row"><span>PLACA:</span><span id="t-placa" class="bold">--</span></div>
   <div class="row"><span>CHOFER:</span><span id="t-chofer">--</span></div>
   <div class="row"><span>PRODUCTO:</span><span id="t-producto">--</span></div>
   <div class="divider"></div>
 
-  <div class="row"><span>P. BRUTO:</span><span id="t-bruto">0.00 kg</span></div>
-  <div class="row"><span>TARA:</span><span id="t-tara">0.00 kg</span></div>
+  <div class="center bold">══ ENTRADA ══</div>
+  <div class="row"><span>Fecha:</span><span id="t-fecha-entrada">--</span></div>
+  <div class="row"><span>Peso:</span><span id="t-peso-entrada">0.00 kg</span></div>
   <div class="divider"></div>
 
-  <div class="row total-box">
-    <span>PESO NETO:</span>
-    <span id="t-neto">0.00 kg</span>
+  <div class="center bold">══ SALIDA ══</div>
+  <div class="row"><span>Fecha:</span><span id="t-fecha-salida">--</span></div>
+  <div class="row"><span>Peso:</span><span id="t-peso-salida">0.00 kg</span></div>
+  <div class="divider"></div>
+
+  <div class="total-box">
+    ██ PESO NETO: <span id="t-neto">0.00</span> <span id="t-unidad">kg</span> ██
   </div>
   <div class="divider"></div>
 
   <div class="signatures">
     <div>
-      ____________________<br>
-      Operador Báscula
+      ________<br>
+      Operador
     </div>
     <div>
-      ____________________<br>
-      Firma Conductor
+      ________<br>
+      Conductor
     </div>
   </div>
 
@@ -95,19 +104,23 @@
 
       if (data) {
         document.getElementById('t-id').textContent = '#' + String(data.id || 0).padStart(5, '0');
-        document.getElementById('t-fecha').textContent = data.fecha || new Date().toLocaleString();
+        document.getElementById('t-estado').textContent = data.estado || 'COMPLETADO';
         document.getElementById('t-placa').textContent = String(data.placa || 'S/P').toUpperCase();
         document.getElementById('t-chofer').textContent = data.chofer || 'GENÉRICO';
         document.getElementById('t-producto').textContent = data.producto || 'VARIOS';
 
-        const bruto = Number(data.peso_bruto || 0).toFixed(2);
-        const tara = Number(data.tara || 0).toFixed(2);
+        document.getElementById('t-fecha-entrada').textContent = data.fecha_entrada || '--';
+        document.getElementById('t-fecha-salida').textContent = data.fecha_salida || '--';
+
+        const pesoEntrada = Number(data.peso_entrada || 0).toFixed(2);
+        const pesoSalida = Number(data.peso_salida || 0).toFixed(2);
         const neto = Number(data.peso_neto || 0).toFixed(2);
         const unidad = data.unidad || 'kg';
 
-        document.getElementById('t-bruto').textContent = `${bruto} ${unidad}`;
-        document.getElementById('t-tara').textContent = `${tara} ${unidad}`;
-        document.getElementById('t-neto').textContent = `${neto} ${unidad}`;
+        document.getElementById('t-peso-entrada').textContent = `${pesoEntrada} ${unidad}`;
+        document.getElementById('t-peso-salida').textContent = `${pesoSalida} ${unidad}`;
+        document.getElementById('t-neto').textContent = neto;
+        document.getElementById('t-unidad').textContent = unidad;
 
         setTimeout(() => {
           window.print();
