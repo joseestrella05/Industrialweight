@@ -1,16 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
   <meta charset="UTF-8">
   <title>Sistema de Pesaje Industrial</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background-color: #0f1115;
       color: #e0e0e0;
@@ -19,9 +13,8 @@
       display: flex;
       flex-direction: column;
       gap: 16px;
-      height: 100vh;
+      min-height: 100vh;
     }
-
     .header {
       display: flex;
       justify-content: space-between;
@@ -29,13 +22,7 @@
       border-bottom: 1px solid #232730;
       padding-bottom: 12px;
     }
-
-    .header h1 {
-      font-size: 1.1rem;
-      text-transform: uppercase;
-      color: #8a99ad;
-      letter-spacing: 1px;
-    }
+    .header h1 { font-size: 1.1rem; text-transform: uppercase; color: #8a99ad; letter-spacing: 1px; }
 
     .indicator-box {
       background: #050608;
@@ -44,45 +31,28 @@
       padding: 25px;
       text-align: center;
     }
-
     .weight-value {
       font-family: 'Courier New', Courier, monospace;
-      font-size: 4.5rem;
+      font-size: 5rem;
       font-weight: 900;
       letter-spacing: 4px;
       color: #00ff66;
       text-shadow: 0 0 15px rgba(0, 255, 102, 0.4);
     }
-
-    .unit {
-      font-size: 1.8rem;
-      color: #5a6e85;
-      margin-left: 8px;
-    }
-
+    .unit { font-size: 1.8rem; color: #5a6e85; margin-left: 8px; }
+    
     .status-badge {
       display: inline-block;
-      padding: 4px 12px;
+      padding: 4px 14px;
       border-radius: 12px;
       font-size: 0.75rem;
       font-weight: bold;
       text-transform: uppercase;
       margin-top: 10px;
     }
+    .stable { background: rgba(0, 255, 102, 0.15); color: #00ff66; border: 1px solid #00ff66; }
+    .unstable { background: rgba(255, 170, 0, 0.15); color: #ffaa00; border: 1px solid #ffaa00; }
 
-    .stable {
-      background: rgba(0, 255, 102, 0.15);
-      color: #00ff66;
-      border: 1px solid #00ff66;
-    }
-
-    .unstable {
-      background: rgba(255, 170, 0, 0.15);
-      color: #ffaa00;
-      border: 1px solid #ffaa00;
-    }
-
-    /* Formulario de Registro */
     .form-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -92,19 +62,8 @@
       border-radius: 8px;
       border: 1px solid #232730;
     }
-
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    label {
-      font-size: 0.8rem;
-      color: #8a99ad;
-      text-transform: uppercase;
-    }
-
+    .field { display: flex; flex-direction: column; gap: 4px; }
+    label { font-size: 0.8rem; color: #8a99ad; text-transform: uppercase; }
     input {
       background: #0d0f12;
       border: 1px solid #2a313d;
@@ -113,11 +72,7 @@
       color: #fff;
       font-size: 0.95rem;
     }
-
-    input:focus {
-      border-color: #0066ff;
-      outline: none;
-    }
+    input:focus { border-color: #0066ff; outline: none; }
 
     .btn-primary {
       padding: 16px;
@@ -129,15 +84,30 @@
       font-weight: bold;
       cursor: pointer;
     }
+    .btn-primary:disabled { background: #1c2536; color: #52617a; cursor: not-allowed; }
 
-    .btn-primary:disabled {
-      background: #1c2536;
-      color: #52617a;
-      cursor: not-allowed;
+    .history-container {
+      background: #15181e;
+      border: 1px solid #232730;
+      border-radius: 8px;
+      padding: 16px;
+      flex-grow: 1;
     }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th { background: #1f242d; color: #8a99ad; text-align: left; padding: 10px; }
+    td { padding: 10px; border-bottom: 1px solid #232730; }
+    .btn-reprint {
+      padding: 4px 8px;
+      font-size: 0.75rem;
+      background: #232730;
+      color: #8a99ad;
+      border: 1px solid #3b4252;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-reprint:hover { background: #2e3440; color: #fff; }
   </style>
 </head>
-
 <body>
 
   <div class="header">
@@ -164,7 +134,7 @@
     </div>
     <div class="field">
       <label>Producto</label>
-      <input type="text" id="producto" placeholder="Ej: Cacao Fermentado / Maíz">
+      <input type="text" id="producto" placeholder="Ej: Maíz / Cacao / Árido">
     </div>
     <div class="field">
       <label>Tara (kg)</label>
@@ -174,25 +144,22 @@
 
   <button id="btn-save" class="btn-primary" disabled onclick="guardarPesaje()">Registrar Pesaje</button>
 
-  <div style="margin-top: 15px;">
-    <h3 style="font-size: 0.9rem; color: #8a99ad; margin-bottom: 8px; text-transform: uppercase;">Últimos Pesajes
-      Registrados</h3>
-    <table
-      style="width: 100%; border-collapse: collapse; background: #15181e; border-radius: 8px; overflow: hidden; font-size: 0.85rem;">
+  <div class="history-container">
+    <h3 style="font-size: 0.9rem; color: #8a99ad; margin-bottom: 12px; text-transform: uppercase;">Últimos Pesajes Registrados</h3>
+    <table>
       <thead>
-        <tr style="background: #1f242d; color: #8a99ad; text-align: left;">
-          <th style="padding: 8px;"># Boleta</th>
-          <th style="padding: 8px;">Fecha / Hora</th>
-          <th style="padding: 8px;">Placa</th>
-          <th style="padding: 8px;">Producto</th>
-          <th style="padding: 8px;">Bruto</th>
-          <th style="padding: 8px;">Tara</th>
-          <th style="padding: 8px;">Neto</th>
+        <tr>
+          <th># Boleta</th>
+          <th>Fecha / Hora</th>
+          <th>Placa</th>
+          <th>Producto</th>
+          <th>Bruto</th>
+          <th>Tara</th>
+          <th>Neto</th>
+          <th style="text-align: center;">Acción</th>
         </tr>
       </thead>
-      <tbody id="tickets-table-body">
-        <!-- Rellenado dinámicamente -->
-      </tbody>
+      <tbody id="tickets-table-body"></tbody>
     </table>
   </div>
 
@@ -264,7 +231,6 @@
 
         const result = await response.json();
         if (result.success) {
-          // Prepara el objeto completo para impresión
           const printData = {
             id: result.id,
             fecha: result.fecha,
@@ -277,10 +243,8 @@
             unidad: payload.unidad
           };
 
-          // Disparar ventana de impresión
           ipcRenderer.send('imprimir-ticket', printData);
 
-          // Limpiar formulario y refrescar tabla
           document.getElementById('placa').value = '';
           document.getElementById('chofer').value = '';
           document.getElementById('producto').value = '';
@@ -302,16 +266,16 @@
         if (!tbody) return;
 
         tbody.innerHTML = cacheTickets.map((t, index) => `
-          <tr style="border-bottom: 1px solid #232730;">
-            <td style="padding: 10px; font-weight: bold; color: #00ff66;">#${String(t.id).padStart(5, '0')}</td>
-            <td style="padding: 10px; color: #8a99ad;">${t.fecha}</td>
-            <td style="padding: 10px; font-weight: bold;">${t.placa}</td>
-            <td style="padding: 10px;">${t.producto}</td>
-            <td style="padding: 10px;">${t.peso_bruto.toFixed(2)} ${t.unidad}</td>
-            <td style="padding: 10px;">${t.tara.toFixed(2)} ${t.unidad}</td>
-            <td style="padding: 10px; font-weight: bold; color: #fff;">${t.peso_neto.toFixed(2)} ${t.unidad}</td>
-            <td style="padding: 10px; text-align: center;">
-              <button onclick="reimprimir(${index})" style="padding: 4px 8px; font-size: 0.75rem; background: #232730; color: #8a99ad; border: 1px solid #3b4252; border-radius: 4px; cursor: pointer;">Reimprimir</button>
+          <tr>
+            <td style="font-weight: bold; color: #00ff66;">#${String(t.id).padStart(5, '0')}</td>
+            <td style="color: #8a99ad;">${t.fecha}</td>
+            <td style="font-weight: bold;">${t.placa}</td>
+            <td>${t.producto}</td>
+            <td>${t.peso_bruto.toFixed(2)} ${t.unidad}</td>
+            <td>${t.tara.toFixed(2)} ${t.unidad}</td>
+            <td style="font-weight: bold; color: #fff;">${t.peso_neto.toFixed(2)} ${t.unidad}</td>
+            <td style="text-align: center;">
+              <button class="btn-reprint" onclick="reimprimir(${index})">Reimprimir</button>
             </td>
           </tr>
         `).join('');
@@ -331,5 +295,4 @@
     cargarHistorial();
   </script>
 </body>
-
 </html>

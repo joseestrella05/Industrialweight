@@ -1,16 +1,14 @@
 {
   "name": "scale-frontend",
   "version": "1.0.0",
-  "description": "",
+  "description": "Sistema de Pesaje Industrial",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron ."
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
   "devDependencies": {
     "electron": "^44.2.0"
   }

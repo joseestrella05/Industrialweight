@@ -1,12 +1,36 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
+const { spawn } = require('child_process');
 
 let mainWindow;
+let backendProcess = null;
+let currentTicketData = null;
+
+function startBackend() {
+  const isDev = !app.isPackaged;
+  const isWindows = process.platform === 'win32';
+  const binaryName = isWindows ? 'scale-backend.exe' : 'scale-backend';
+
+  const backendPath = isDev
+    ? path.join(__dirname, 'bin', binaryName)
+    : path.join(process.resourcesPath, 'bin', binaryName);
+
+  backendProcess = spawn(backendPath, [], {
+    cwd: path.dirname(backendPath),
+    stdio: 'ignore'
+  });
+
+  backendProcess.on('error', (err) => {
+    console.error('Error iniciando el binario Go:', err);
+  });
+}
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 950,
-    height: 700,
+    width: 1050,
+    height: 800,
+    minWidth: 850,
+    minHeight: 650,
     backgroundColor: '#0f1115',
     webPreferences: {
       nodeIntegration: true,
@@ -18,10 +42,13 @@ function createWindow() {
 }
 
 ipcMain.on('imprimir-ticket', (event, ticketData) => {
+  currentTicketData = ticketData;
+
   let printWin = new BrowserWindow({
-    width: 350,
-    height: 500,
-    show: true, // Ponlo en false cuando quieras impresión silenciosa directa
+    width: 380,
+    height: 600,
+    title: 'Comprobante de Pesaje',
+    show: true,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -29,10 +56,23 @@ ipcMain.on('imprimir-ticket', (event, ticketData) => {
   });
 
   printWin.loadFile(path.join(__dirname, 'ticket.html'));
-  printWin.webContents.on('did-finish-load', () => {
-    printWin.webContents.send('print-data', ticketData);
-  });
 });
 
-app.whenReady().then(createWindow);
-app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
+ipcMain.on('obtener-datos-ticket', (event) => {
+  event.returnValue = currentTicketData;
+});
+
+app.whenReady().then(() => {
+  startBackend();
+  createWindow();
+});
+
+app.on('before-quit', () => {
+  if (backendProcess) {
+    backendProcess.kill();
+  }
+});
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') app.quit();
+});

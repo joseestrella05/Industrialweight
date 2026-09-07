@@ -108,7 +108,6 @@ func parseXK3190(trama string) (*WeightReading, error) {
 }
 
 func saveTicketHandler(w http.ResponseWriter, r *http.Request) {
-	// Habilitar CORS para Electron
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
@@ -150,6 +149,38 @@ func saveTicketHandler(w http.ResponseWriter, r *http.Request) {
 		PesoNeto: pesoNeto,
 		Success:  true,
 	})
+}
+
+func getTicketsHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+
+	rows, err := db.Query(`
+		SELECT id, fecha, placa, chofer, producto, peso_bruto, tara, peso_neto, unidad 
+		FROM tickets 
+		ORDER BY id DESC 
+		LIMIT 15
+	`)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var list []TicketRecord
+	for rows.Next() {
+		var t TicketRecord
+		if err := rows.Scan(&t.ID, &t.Fecha, &t.Placa, &t.Chofer, &t.Producto, &t.PesoBruto, &t.Tara, &t.PesoNeto, &t.Unidad); err == nil {
+			list = append(list, t)
+		}
+	}
+
+	if err := rows.Err(); err != nil {
+		http.Error(w, fmt.Sprintf("Error leyendo filas: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(list)
 }
 
 func wsHandler(w http.ResponseWriter, r *http.Request) {
@@ -196,7 +227,7 @@ func startSerialReader(portName string) {
 
 	port, err := serial.Open(portName, mode)
 	if err != nil {
-		log.Fatalf("Error en puerto %s: %v", portName, err)
+		log.Fatalf("Error en puerto serial %s: %v", portName, err)
 	}
 	defer port.Close()
 
@@ -213,48 +244,16 @@ func startSerialReader(portName string) {
 	}
 }
 
-func getTicketsHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Content-Type", "application/json")
-
-	rows, err := db.Query(`
-		SELECT id, fecha, placa, chofer, producto, peso_bruto, tara, peso_neto, unidad 
-		FROM tickets 
-		ORDER BY id DESC 
-		LIMIT 10
-	`)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer rows.Close()
-
-	var list []TicketRecord
-	for rows.Next() {
-		var t TicketRecord
-		if err := rows.Scan(&t.ID, &t.Fecha, &t.Placa, &t.Chofer, &t.Producto, &t.PesoBruto, &t.Tara, &t.PesoNeto, &t.Unidad); err == nil {
-			list = append(list, t)
-		}
-	}
-
-	if err := rows.Err(); err != nil {
-		http.Error(w, fmt.Sprintf("Error leyendo filas: %v", err), http.StatusInternalServerError)
-		return
-	}
-
-	json.NewEncoder(w).Encode(list)
-}
-
 func main() {
 	initDB()
 
-	// Ajusta según tu puerto de socat
+	// Ajusta según el puerto hermano generado por socat
 	go startSerialReader("/dev/ttys004")
 
 	http.HandleFunc("/ws", wsHandler)
 	http.HandleFunc("/api/ticket", saveTicketHandler)
 	http.HandleFunc("/api/tickets", getTicketsHandler)
 
-	fmt.Println("Servidor Go listo en http://127.0.0.1:8080")
+	fmt.Println("Backend Go operativo en http://127.0.0.1:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
