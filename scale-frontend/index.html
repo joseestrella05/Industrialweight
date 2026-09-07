@@ -198,9 +198,11 @@
 
   <script>
     const { ipcRenderer } = require('electron');
+
     let currentWeight = 0;
     let currentUnit = 'kg';
     let isStable = false;
+    let cacheTickets = [];
 
     const weightEl = document.getElementById('display-weight');
     const unitEl = document.getElementById('display-unit');
@@ -245,7 +247,7 @@
 
     async function guardarPesaje() {
       const payload = {
-        placa: document.getElementById('placa').value || "S/P",
+        placa: (document.getElementById('placa').value || "S/P").toUpperCase(),
         chofer: document.getElementById('chofer').value || "Genérico",
         producto: document.getElementById('producto').value || "Varios",
         peso_bruto: currentWeight,
@@ -262,28 +264,30 @@
 
         const result = await response.json();
         if (result.success) {
-          // 1. Refrescar la tabla inmediatamente
-          await cargarHistorial();
+          // Prepara el objeto completo para impresión
+          const printData = {
+            id: result.id,
+            fecha: result.fecha,
+            placa: payload.placa,
+            chofer: payload.chofer,
+            producto: payload.producto,
+            peso_bruto: payload.peso_bruto,
+            tara: payload.tara,
+            peso_neto: result.peso_neto,
+            unidad: payload.unidad
+          };
 
-          // 2. Limpiar campos del formulario
+          // Disparar ventana de impresión
+          ipcRenderer.send('imprimir-ticket', printData);
+
+          // Limpiar formulario y refrescar tabla
           document.getElementById('placa').value = '';
           document.getElementById('chofer').value = '';
           document.getElementById('producto').value = '';
           document.getElementById('tara').value = '0.00';
 
-          alert(`Boleta #${result.id} registrada con éxito.\nPeso Neto: ${result.peso_neto.toFixed(2)} ${currentUnit}`);
+          await cargarHistorial();
         }
-        ipcRenderer.send('imprimir-ticket', {
-          id: result.id,
-          fecha: result.fecha,
-          placa: payload.placa,
-          chofer: payload.chofer,
-          producto: payload.producto,
-          peso_bruto: payload.peso_bruto,
-          tara: payload.tara,
-          peso_neto: result.peso_neto,
-          unidad: payload.unidad
-        });
       } catch (err) {
         alert('Error registrando boleta: ' + err.message);
       }
@@ -292,29 +296,39 @@
     async function cargarHistorial() {
       try {
         const res = await fetch('http://127.0.0.1:8080/api/tickets');
-        const tickets = await res.json();
-
-        if (!tickets || !Array.isArray(tickets)) return;
+        cacheTickets = await res.json() || [];
 
         const tbody = document.getElementById('tickets-table-body');
-        tbody.innerHTML = tickets.map(t => `
-      <tr style="border-bottom: 1px solid #232730;">
-        <td style="padding: 10px; font-weight: bold; color: #00ff66;">#${String(t.id).padStart(5, '0')}</td>
-        <td style="padding: 10px; color: #8a99ad;">${t.fecha}</td>
-        <td style="padding: 10px; font-weight: bold;">${t.placa}</td>
-        <td style="padding: 10px;">${t.producto}</td>
-        <td style="padding: 10px;">${t.peso_bruto.toFixed(2)} ${t.unidad}</td>
-        <td style="padding: 10px;">${t.tara.toFixed(2)} ${t.unidad}</td>
-        <td style="padding: 10px; font-weight: bold; color: #fff;">${t.peso_neto.toFixed(2)} ${t.unidad}</td>
-      </tr>
-    `).join('');
+        if (!tbody) return;
+
+        tbody.innerHTML = cacheTickets.map((t, index) => `
+          <tr style="border-bottom: 1px solid #232730;">
+            <td style="padding: 10px; font-weight: bold; color: #00ff66;">#${String(t.id).padStart(5, '0')}</td>
+            <td style="padding: 10px; color: #8a99ad;">${t.fecha}</td>
+            <td style="padding: 10px; font-weight: bold;">${t.placa}</td>
+            <td style="padding: 10px;">${t.producto}</td>
+            <td style="padding: 10px;">${t.peso_bruto.toFixed(2)} ${t.unidad}</td>
+            <td style="padding: 10px;">${t.tara.toFixed(2)} ${t.unidad}</td>
+            <td style="padding: 10px; font-weight: bold; color: #fff;">${t.peso_neto.toFixed(2)} ${t.unidad}</td>
+            <td style="padding: 10px; text-align: center;">
+              <button onclick="reimprimir(${index})" style="padding: 4px 8px; font-size: 0.75rem; background: #232730; color: #8a99ad; border: 1px solid #3b4252; border-radius: 4px; cursor: pointer;">Reimprimir</button>
+            </td>
+          </tr>
+        `).join('');
       } catch (e) {
-        console.error('Error cargando historial:', e);
+        console.error('Error al obtener historial:', e);
       }
     }
-    cargarHistorial();
+
+    function reimprimir(index) {
+      const ticket = cacheTickets[index];
+      if (ticket) {
+        ipcRenderer.send('imprimir-ticket', ticket);
+      }
+    }
 
     connect();
+    cargarHistorial();
   </script>
 </body>
 
