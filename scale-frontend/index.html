@@ -124,6 +124,26 @@
 
   <button id="btn-save" class="btn-primary" disabled onclick="guardarPesaje()">Registrar Pesaje</button>
 
+  <div style="margin-top: 15px;">
+    <h3 style="font-size: 0.9rem; color: #8a99ad; margin-bottom: 8px; text-transform: uppercase;">Últimos Pesajes Registrados</h3>
+    <table style="width: 100%; border-collapse: collapse; background: #15181e; border-radius: 8px; overflow: hidden; font-size: 0.85rem;">
+      <thead>
+        <tr style="background: #1f242d; color: #8a99ad; text-align: left;">
+          <th style="padding: 8px;"># Boleta</th>
+          <th style="padding: 8px;">Fecha / Hora</th>
+          <th style="padding: 8px;">Placa</th>
+          <th style="padding: 8px;">Producto</th>
+          <th style="padding: 8px;">Bruto</th>
+          <th style="padding: 8px;">Tara</th>
+          <th style="padding: 8px;">Neto</th>
+        </tr>
+      </thead>
+      <tbody id="tickets-table-body">
+        <!-- Rellenado dinámicamente -->
+      </tbody>
+    </table>
+  </div>
+
   <script>
     let currentWeight = 0;
     let currentUnit = 'kg';
@@ -195,6 +215,28 @@
         alert('Error registrando boleta en backend: ' + err.message);
       }
     }
+
+    async function cargarHistorial() {
+      try {
+        const res = await fetch('http://127.0.0.1:8080/api/tickets');
+        const tickets = await res.json() || [];
+        const tbody = document.getElementById('tickets-table-body');
+        tbody.innerHTML = tickets.map(t => `
+          <tr style="border-bottom: 1px solid #232730;">
+            <td style="padding: 8px; font-weight: bold; color: #00ff66;">#${String(t.id).padStart(5, '0')}</td>
+            <td style="padding: 8px; color: #a0a0a0;">${t.fecha}</td>
+            <td style="padding: 8px; font-weight: bold;">${t.placa}</td>
+            <td style="padding: 8px;">${t.producto}</td>
+            <td style="padding: 8px;">${t.peso_bruto.toFixed(2)} ${t.unidad}</td>
+            <td style="padding: 8px;">${t.tara.toFixed(2)} ${t.unidad}</td>
+            <td style="padding: 8px; font-weight: bold; color: #fff;">${t.peso_neto.toFixed(2)} ${t.unidad}</td>
+          </tr>
+        `).join('');
+      } catch (e) {
+      console.error('Error cargando historial', e);
+      }
+    }
+    cargarHistorial();
 
     connect();
   </script>
